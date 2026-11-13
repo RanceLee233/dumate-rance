@@ -48,6 +48,7 @@ test("imports limits and actual IDs; survives source deletion without persisting
     assert.equal(imported["deepseek-v41-flash"].limit.output, 384000)
     assert.equal(imported["deepseek-v41-flash"].attachment, true)
     assert.equal(imported["deepseek-v41-flash"].reasoning, true)
+    assert.deepEqual(Object.keys(imported["deepseek-v41-flash"].variants), ["none", "low", "high", "max"])
     const saved = readFileSync(snapshotPath, "utf8")
     assert.ok(!saved.includes("FAKE-KEY") && !saved.includes("127.0.0.1") && !saved.includes(dir))
     unlinkSync(sourcePath)
@@ -56,6 +57,9 @@ test("imports limits and actual IDs; survives source deletion without persisting
     assert.deepEqual(loadModels({ sourcePath, snapshotPath }), imported)
     assert.equal(readFileSync(snapshotPath, "utf8"), saved)
     writeFileSync(snapshotPath, "invalid JSON")
-    assert.equal(loadModels({ sourcePath, snapshotPath })["deepseek-v41-flash"].limit.context, 1000000)
+    const fallback = loadModels({ sourcePath, snapshotPath })["deepseek-v41-flash"]
+    assert.equal(fallback.limit.context, 1000000)
+    assert.equal(fallback.reasoning, true)
+    assert.deepEqual(Object.keys(fallback.variants), ["none", "low", "high", "max"])
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })

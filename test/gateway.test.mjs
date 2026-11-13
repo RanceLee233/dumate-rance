@@ -15,15 +15,24 @@ test("credentials are sent only to the official chat endpoint, without redirects
       assert.equal(String(url), "https://dumate-svc.baidu.com/gateway/apis/v1/chat/completions")
       assert.equal(init.headers.get("Authorization"), "Bearer FAKE-TOKEN")
       assert.equal(init.headers.get("x-api-key"), null)
-      assert.equal(JSON.parse(init.body).model, "deepseek-v41-flash")
+      const body = JSON.parse(init.body)
+      assert.equal(body.model, "deepseek-v41-flash")
+      assert.deepEqual(body.thinking, { type: body.label === "none" ? "disabled" : "enabled" })
+      assert.equal(body.enable_thinking, body.label !== "none")
+      assert.equal(body.reasoning_effort, { none: undefined, low: "high", high: "high", max: "max" }[body.label])
+      assert.deepEqual(body.messages, [{ role: "user", content: "hello" }])
+      assert.equal(body.stream, true)
       return Response.json({ model: "deepseek-v41-flash", choices: [{ message: { content: "OK" } }] })
     }
     for (const url of ["https://example.invalid/chat/completions", "http://dumate-svc.baidu.com/gateway/apis/v1/chat/completions", "https://dumate-svc.baidu.com/other", "https://user:fake@dumate-svc.baidu.com/gateway/apis/v1/chat/completions"]) {
       assert.equal((await loader.fetch(url, { method: "POST", body: "{}" })).status, 400)
     }
     assert.equal(calls, 0)
-    const r = await loader.fetch(new Request("https://dumate-svc.baidu.com/gateway/apis/v1/chat/completions", { method: "POST", headers: { "x-api-key": "FAKE-CLIENT-KEY" }, body: JSON.stringify({ model: "deepseek-v41-flash" }) }))
-    assert.equal(r.status, 200)
-    assert.equal(calls, 2)
+    for (const effort of ["none", "low", "high", "max"]) {
+      const init = { method: "POST", headers: { "x-api-key": "FAKE-CLIENT-KEY" }, body: JSON.stringify({ model: "deepseek-v41-flash", label: effort, reasoning_effort: effort, thinking: { type: effort === "none" ? "enabled" : "disabled" }, enable_thinking: effort === "none", messages: [{ role: "user", content: "hello" }], stream: true }) }
+      const url = "https://dumate-svc.baidu.com/gateway/apis/v1/chat/completions"
+      for (const r of [await loader.fetch(new Request(url, init)), await loader.fetch(url, init)]) assert.equal(r.status, 200)
+    }
+    assert.equal(calls, 9)
   } finally { globalThis.fetch = originalFetch }
 })

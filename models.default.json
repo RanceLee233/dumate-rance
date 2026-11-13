@@ -47,7 +47,7 @@
         "output": 384000
       },
       "tool_call": true,
-      "reasoning": false,
+      "reasoning": true,
       "attachment": true,
       "modalities": {
         "input": [
@@ -57,6 +57,12 @@
         "output": [
           "text"
         ]
+      },
+      "variants": {
+        "none": {},
+        "low": {},
+        "high": {},
+        "max": {}
       }
     },
     "dm-auto-model/mm.L0": {

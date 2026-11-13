@@ -42,6 +42,7 @@ export function importModels(config) {
       limit: { context, output },
       tool_call: value.tool_call !== false,
       reasoning: id === "deepseek-v41-flash" || value.reasoning === true || value.capabilities?.reasoning === true,
+      ...(id === "deepseek-v41-flash" ? { variants: { none: {}, low: {}, high: {}, max: {} } } : {}),
       attachment: input.some((x) => x !== "text"),
       modalities: { input, output: ["text"] },
     }

@@ -22,6 +22,7 @@ import { readFileSync, statSync } from "node:fs"
 import { join } from "node:path"
 import { desktopUserDataDir } from "./paths.mjs"
 import { loadModels } from "./models.mjs"
+import { normalizeReasoningBody } from "./reasoning.mjs"
 
 const PROVIDER_ID = "dumate"
 const PROVIDER_NAME = "百度搭子 DuMate"
@@ -439,6 +440,7 @@ export const DuMatePlugin = async (input = {}) => {
             }
             let bodyText = init?.body
             if (bodyText === undefined && req) bodyText = await req.clone().text()
+            bodyText = normalizeReasoningBody(bodyText)
             let cred
             try {
               cred = await fetchGatewayToken(cookieHeaderOf(cookies))

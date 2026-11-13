@@ -1,6 +1,6 @@
 {
   "name": "dumate-rance",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "百度搭子 DuMate for magpie: cross-platform desktop sign-in, automatic model discovery, persistent catalog and context limits.",
   "type": "module",
   "main": "./index.mjs",
@@ -8,6 +8,7 @@
   "files": [
     "index.mjs",
     "models.mjs",
+    "reasoning.mjs",
     "paths.mjs",
     "models.default.json",
     "icon.png",
