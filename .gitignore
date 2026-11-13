@@ -1,0 +1,10 @@
+node_modules/
+*.tgz
+*.tmp
+.DS_Store
+.env*
+auth.json
+.cookie-key
+models.source.json
+models.snapshot.json
+coverage/
